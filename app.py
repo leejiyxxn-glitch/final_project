@@ -11,52 +11,95 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. 미니멀 포트폴리오 감성 CSS
+# 2. 깔끔한 고딕체 중심의 가독성 극대화 CSS (이모티콘 매칭 반영)
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        
+        /* 전체 배경 및 깔끔한 폰트 세팅 */
         html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
             background-color: #FFFFFF !important;
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif !important;
             color: #111111;
         }
+        
+        /* 사이드바 미니멀 디자인 */
         [data-testid="stSidebar"] {
             background-color: #F9F9F9 !important;
             border-right: 1px solid #EAEAEA;
         }
+        
+        /* 가독성을 높인 타이틀 & 텍스트 */
         .web-sub {
-            font-family: 'Playfair Display', serif;
-            font-size: 16px;
-            font-style: italic;
-            letter-spacing: 1px;
-            color: #666666;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #777777;
+            font-weight: 500;
             margin-bottom: 5px;
+            text-transform: uppercase;
         }
         .web-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 46px;
-            font-weight: 700;
+            font-size: 40px;
+            font-weight: 900;
             letter-spacing: -1px;
-            line-height: 1.1;
+            line-height: 1.2;
+            color: #111111 !important;
             margin-bottom: 10px;
         }
         .web-caption {
             font-size: 15px;
             color: #555555;
-            font-weight: 300;
+            font-weight: 400;
             margin-bottom: 30px;
         }
-        .section-line { border-top: 1px solid #111111; margin-top: 40px; margin-bottom: 20px; }
-        .section-sub-line { border-top: 1px solid #EAEAEA; margin-top: 30px; margin-bottom: 30px; }
-        .metric-wrapper { border-left: 1px solid #111111; padding-left: 15px; margin-bottom: 20px; }
-        .metric-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888888; }
-        .metric-value { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: #111111; margin-top: 5px; }
-        .section-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 5px; }
-        .section-desc { font-size: 13px; color: #777777; margin-bottom: 20px; }
+        
+        /* 구분선 */
+        .section-line {
+            border-top: 2px solid #111111;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .section-sub-line {
+            border-top: 1px solid #EAEAEA;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        /* 지표 카드 블록 */
+        .metric-wrapper {
+            border-left: 3px solid #111111;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-label {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #666666;
+        }
+        .metric-value {
+            font-size: 30px;
+            font-weight: 700;
+            color: #111111;
+            margin-top: 5px;
+        }
+        
+        /* 섹션 타이틀 */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111111 !important;
+            margin-bottom: 5px;
+        }
+        .section-desc {
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 25px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. 데이터셋 대폭 확장 (200개 아이템 + 시즌 + 무드 키워드 다각화)
+# 3. 데이터셋 로드 (200개 코퍼스)
 @st.cache_data
 def load_large_data():
     brands = (
@@ -65,7 +108,6 @@ def load_large_data():
     )
     brand_types = ["SPA"] * 100 + ["Designer"] * 100
     
-    # 200개의 정교한 패션 상품명 풀
     product_names = [
         # --- 무신사 스탠다드 (50개) ---
         "쿨탠다드 베이직 티셔츠", "에센셜 라운드 넥 반팔티", "릴렉스핏 크루넥 티셔츠", "데일리 코튼 반팔 셔츠", "린넨 블렌드 릴렉스 셔츠",
@@ -114,7 +156,6 @@ def load_large_data():
         "앤티크 플라워 로맨틱 원피스", "내추럴 코튼 소프트 자켓", "헌치 프렌치 시그니처 스카프", "소프트 클래식 롱 가디건", "로맨틱 빈티지 레이어드 스커트"
     ]
     
-    # 카테고리 고도화 (상의, 하의, 아우터, 잡화 다양화 및 시즌 믹스)
     categories = (
         ["상의"] * 25 + ["하의"] * 10 + ["아우터"] * 10 + ["잡화"] * 5 +
         ["상의"] * 25 + ["하의"] * 10 + ["아우터"] * 10 + ["잡화"] * 5 +
@@ -123,13 +164,11 @@ def load_large_data():
         ["상의"] * 15 + ["하의"] * 5 + ["아우터"] * 5 + ["잡화"] * 5
     )
     
-    # 2026 패션 시즌 비율 매핑 (SS / FW)
     seasons = (
         ["SS"] * 35 + ["FW"] * 15 + ["SS"] * 35 + ["FW"] * 15 +
         ["SS"] * 25 + ["FW"] * 15 + ["SS"] * 15 + ["FW"] * 15 + ["SS"] * 20 + ["FW"] * 10
     )
     
-    # 가격대 가상 스펙트럼 세팅
     prices = (
         [19900, 25900, 29900, 39900, 49000] * 10 + [25900, 39900, 49900, 59900, 79000] * 10 +
         [42000, 45000, 68000, 75000, 89000, 128000, 159000, 189000] * 5 +
@@ -149,7 +188,7 @@ def load_large_data():
 
 df = load_large_data()
 
-# 단순 카테고리 불용어 필터링
+# 뻔한 카테고리 단어 필터링 세팅
 STOPWORDS = {
     "셔츠", "티셔츠", "반팔티", "반팔", "블라우스", "카라티", "나시", "원피스", "팩", "투팩", "원단", "팬츠", "슬랙스", 
     "스커트", "자켓", "가디건", "코트", "패딩", "스웨터", "니트", "집업", "바지", "면바지", "원피스", "후드집업",
@@ -173,7 +212,6 @@ def get_language_type(text):
     elif has_en: return "English (영어)"
     else: return "Korean (한글)"
 
-# 감성 무드 카테고리 자동 분류 시스템
 def analyze_mood_category(text):
     text_upper = text.upper()
     if any(k in text_upper for k in ["미니멀", "MINIMAL", "에센셜", "ESSENTIAL", "베이직", "BASIC", "스탠다드", "STANDARD"]):
@@ -191,44 +229,44 @@ df['lang_type'] = df['product_name'].apply(get_language_type)
 df['mood_type'] = df['product_name'].apply(analyze_mood_category)
 df['name_length'] = df['product_name'].apply(len)
 
-# 4. 헤더 레이아웃
-st.markdown('<div class="web-sub">Portfolio Project — 2026</div>', unsafe_allow_html=True)
-st.markdown('<div class="web-title">Jiyoon Lee × The Language of Fashion</div>', unsafe_allow_html=True)
-st.markdown('<div class="web-caption">Fashion Design · SKKU · Advanced Linguistic Strategy Dashboard</div>', unsafe_allow_html=True)
+# 4. 상단 헤더 레이아웃 (이모티콘 매칭)
+st.markdown('<div class="web-sub">🗂️ Portfolio Project — 2026</div>', unsafe_allow_html=True)
+st.markdown('<div class="web-title">👔 The Language of Fashion Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="web-caption">Fashion Design · SKKU · Brand Marketing Focus</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-line"></div>', unsafe_allow_html=True)
 
-# 5. 확장형 사이드바 필터 컬렉션
-st.sidebar.markdown("<h3 style='font-family:\"Playfair Display\", serif;'>01 — Filter Collection</h3>", unsafe_allow_html=True)
-selected_types = st.sidebar.multiselect("COLLECTION TYPE", options=["SPA", "Designer"], default=["SPA", "Designer"])
+# 5. 내비게이션 / 사이드바 멀티 필터링
+st.sidebar.markdown("### 🎛️ 01 — Filter Collection", unsafe_allow_html=True)
+selected_types = st.sidebar.multiselect("🏷️ COLLECTION TYPE", options=["SPA", "Designer"], default=["SPA", "Designer"])
 
 available_brands = df[df['brand_type'].isin(selected_types)]['brand'].unique()
-selected_brands = st.sidebar.multiselect("BRANDS SELECTION", options=list(available_brands), default=list(available_brands))
+selected_brands = st.sidebar.multiselect("🏢 BRANDS SELECTION", options=list(available_brands), default=list(available_brands))
 
-selected_categories = st.sidebar.multiselect("PRODUCT CATEGORY", options=list(df['category'].unique()), default=list(df['category'].unique()))
-selected_seasons = st.sidebar.select_slider("SEASON", options=["ALL", "SS", "FW"], value="ALL")
+selected_categories = st.sidebar.multiselect("🧥 PRODUCT CATEGORY", options=list(df['category'].unique()), default=list(df['category'].unique()))
+selected_seasons = st.sidebar.select_slider("☀️ SEASON SPECTRIC", options=["ALL", "SS", "FW"], value="ALL")
 
-# 필터 다중 결합
+# 필터 바인딩
 filtered_df = df[(df['brand_type'].isin(selected_types)) & (df['brand'].isin(selected_brands)) & (df['category'].isin(selected_categories))]
 if selected_seasons != "ALL":
     filtered_df = filtered_df[filtered_df['season'] == selected_seasons]
 
-# 6. 미니멀 스코어 카드
+# 6. 미니멀 지표 스코어보드 (이모티콘 적용)
 m_col1, m_col2, m_col3 = st.columns(3)
 with m_col1:
-    st.markdown('<div class="metric-wrapper"><div class="metric-label">Total Corpus Items</div><div class="metric-value">' + f"{len(filtered_df)}" + ' items</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-wrapper"><div class="metric-label">📦 Total Corpus Items</div><div class="metric-value">' + f"{len(filtered_df)}" + ' items</div></div>', unsafe_allow_html=True)
 with m_col2:
-    st.markdown('<div class="metric-wrapper"><div class="metric-label">Average Market Price</div><div class="metric-value">₩' + f"{int(filtered_df['price'].mean()):,}" + '</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-wrapper"><div class="metric-label">💰 Average Base Price</div><div class="metric-value">₩' + f"{int(filtered_df['price'].mean()):,}" + '</div></div>', unsafe_allow_html=True)
 with m_col3:
-    st.markdown('<div class="metric-wrapper"><div class="metric-label">Sampled Brands</div><div class="metric-value">' + f"{filtered_df['brand'].nunique()}" + ' brands</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-wrapper"><div class="metric-label">✨ Active Brands</div><div class="metric-value">' + f"{filtered_df['brand'].nunique()}" + ' brands</div></div>', unsafe_allow_html=True)
 
 st.markdown('<div class="section-sub-line"></div>', unsafe_allow_html=True)
 
-# 7. 메인 시각화 차트 1 & 2 (형용사 및 언어 구조)
+# 7. 시각화 섹션 1 & 2
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown('<div class="section-title">02 — Style Descriptors & Adjectives</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">카테고리 직적 명칭(팬츠 등)을 지우고 남은 브랜드의 컨셉 수식어 빈도</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📊 02 — Style Descriptors & Adjectives</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-desc">상품 복종 명칭을 정제하고 남은 핵심 스타일 브랜드 수식어 빈도</div>', unsafe_allow_html=True)
     
     all_words = extract_fashion_keywords(filtered_df['product_name'])
     if all_words:
@@ -240,11 +278,11 @@ with chart_col1:
         fig_bar.update_yaxes(linecolor='#111111')
         st.plotly_chart(fig_bar, use_container_width=True)
     else:
-        st.write("선택된 조건에 키워드가 없습니다.")
+        st.write("선택된 조건에 수식어가 없습니다.")
 
 with chart_col2:
-    st.markdown('<div class="section-title">03 — Linguistic Typology</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">한글, 영문 사조, 혼용(Mixed) 등 네이밍 언어 체계 배분도</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">🌐 03 — Linguistic Typology</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-desc">네이밍 시 투영된 한글, 영어, 혼용(Mixed) 등 언어 유형별 쉐어</div>', unsafe_allow_html=True)
     if not filtered_df.empty:
         lang_counts = filtered_df['lang_type'].value_counts().reset_index()
         lang_counts.columns = ['Language Type', 'Count']
@@ -254,12 +292,12 @@ with chart_col2:
 
 st.markdown('<div class="section-sub-line"></div>', unsafe_allow_html=True)
 
-# 8. [신규 카테고리 차트] 브랜드 감성 무드 포지셔닝 맵 & 상품명 글자 수 분석
+# 8. 시각화 섹션 3 & 4 (신규 차트)
 chart_col3, chart_col4 = st.columns(2)
 
 with chart_col3:
-    st.markdown('<div class="section-title">04 — Brand Emotional Mood Segment</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">단어의 어감을 분석해 도출한 브랜드별 추구 감성 세그먼트 비율</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">🖤 04 — Brand Emotional Mood Segment</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-desc">어감 형태소 분류를 통해 추출한 브랜드별 감성 타겟 포지션</div>', unsafe_allow_html=True)
     if not filtered_df.empty:
         mood_df = filtered_df.groupby(['brand', 'mood_type']).size().reset_index(name='Count')
         fig_mood = px.bar(mood_df, x='brand', y='Count', color='mood_type', 
@@ -270,8 +308,8 @@ with chart_col3:
         st.plotly_chart(fig_mood, use_container_width=True)
 
 with chart_col4:
-    st.markdown('<div class="section-title">05 — Product Name Length Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">브랜드 유형별 상품명 글자 수 분포 (SPA의 간결함 vs 디자이너의 상세 수식어)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">✏️ 05 — Product Name Length Distribution</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-desc">브랜드 타입별 상품명 글자 수 스펙트럼 (정보 위주 vs 감성 서술형)</div>', unsafe_allow_html=True)
     if not filtered_df.empty:
         fig_box = px.box(filtered_df, x='brand_type', y='name_length', color='brand_type',
                          color_discrete_map={'SPA': '#888888', 'Designer': '#111111'})
@@ -282,9 +320,9 @@ with chart_col4:
 
 st.markdown('<div class="section-sub-line"></div>', unsafe_allow_html=True)
 
-# 9. 브랜드 마켓 포지셔닝
-st.markdown('<div class="section-title">06 — Brand Market Positioning</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-desc">브랜드별 가격대 분포와 언어적 포지셔닝 매트릭스</div>', unsafe_allow_html=True)
+# 9. 마켓 포지셔닝 스캐터 매트릭스
+st.markdown('<div class="section-title">🎯 06 — Brand Market Positioning Map</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-desc">시즌별 브랜드 가격 스펙트럼 및 복합 포지셔닝</div>', unsafe_allow_html=True)
 
 if not filtered_df.empty:
     fig_scatter = px.scatter(filtered_df, x='brand', y='price', color='brand_type', symbol='season',
@@ -297,11 +335,11 @@ if not filtered_df.empty:
 
 st.markdown('<div class="section-sub-line"></div>', unsafe_allow_html=True)
 
-# 10. 데이터 아카이브
-st.markdown('<div class="section-title">07 — Archive & Data Collection</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-desc">전체 브랜드 수집 데이터베이스 아카이브</div>', unsafe_allow_html=True)
+# 10. 로우 데이터 아카이브
+st.markdown('<div class="section-title">🔍 07 — Archive & Data Collection Search</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-desc">분석에 사용된 전체 패션 브랜드 말뭉치 로우 데이터 검색</div>', unsafe_allow_html=True)
 
-search_query = st.text_input("🔍 Search Concept Word (e.g. 베이직, 에센셜, CLASSIC, 실루엣)")
+search_query = st.text_input("⌨️ Search Concept Word (e.g. 베이직, 에센셜, CLASSIC, 실루엣)")
 
 if search_query:
     display_df = filtered_df[filtered_df['product_name'].str.contains(search_query, case=False)]
@@ -310,6 +348,6 @@ else:
 
 st.dataframe(display_df[['brand', 'brand_type', 'product_name', 'category', 'season', 'price', 'lang_type', 'mood_type']], use_container_width=True)
 
-# 11. 푸터
+# 11. 웹진형 푸터
 st.markdown('<div class="section-line"></div>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; font-size: 11px; color: #888888; font-family:\'Playfair Display\', serif;">© 2026 Jiyoon Lee · Fashion Design, SKKU · All rights reserved.</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; font-size: 11px; color: #888888;">© 2026 Jiyoon Lee · Fashion Design, SKKU · All rights reserved.</p>', unsafe_allow_html=True)
