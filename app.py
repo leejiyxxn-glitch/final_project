@@ -77,39 +77,4 @@ st.subheader("한국 패션 브랜드는 단어를 통해 어떻게 트렌디함
 st.markdown("---")
 
 st.sidebar.header("📊 데이터 필터")
-selected_type = st.sidebar.multiselect("브랜드 유형 선택", options=["SPA", "Designer"], default=["SPA", "Designer"])
-filtered_df = df[df['brand_type'].isin(selected_type)]
-
-col1, col2, col3 = st.columns(3)
-col1.metric("총 분석 상품 수", f"{len(filtered_df)} 개")
-col2.metric("평균 상품 가격", f"{int(filtered_df['price'].mean()):,} 원")
-col3.metric("포함된 브랜드 수", f"{filtered_df['brand'].nunique()} 개")
-st.markdown("---")
-
-chart_col1, chart_col2 = st.columns(2)
-with chart_col1:
-    st.subheader("🔤 가장 많이 사용된 패션 키워드 Top 10")
-    all_words = extract_keywords(filtered_df['product_name'])
-    word_counts = Counter(all_words).most_common(10)
-    word_df = pd.DataFrame(word_counts, columns=['Keyword', 'Count'])
-    fig_bar = px.bar(word_df, x='Count', y='Keyword', orientation='h', color='Keyword', showlegend=False)
-    fig_bar.update_layout(yaxis={'categoryorder':'total ascending'})
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-with chart_col2:
-    st.subheader("🌐 상품명 언어 사용 형태 분포")
-    lang_counts = filtered_df['lang_type'].value_counts().reset_index()
-    lang_counts.columns = ['Language Type', 'Count']
-    fig_pie = px.pie(lang_counts, values='Count', names='Language Type', color_discrete_sequence=px.colors.sequential.RdBu)
-    st.plotly_chart(fig_pie, use_container_width=True)
-
-st.markdown("---")
-st.subheader("💰 브랜드 유형별 가격대 및 상품명 특징 분포")
-fig_scatter = px.scatter(filtered_df, x='brand', y='price', color='brand_type', hover_data=['product_name'], size=[12]*len(filtered_df))
-st.plotly_chart(fig_scatter, use_container_width=True)
-
-st.markdown("---")
-st.subheader("📋 전체 수집 데이터 확인 및 키워드 검색")
-search_query = st.text_input("🔍 상품명 내 특정 키워드 검색 (예: 베이직, CLASSIC, 실루엣)")
-display_df = filtered_df[filtered_df['product_name'].str.contains(search_query, case=False)] if search_query else filtered_df
-st.dataframe(display_df[['brand', 'brand_type', 'product_name', 'price', 'lang_type']], use_container_width=True)
+selected_
