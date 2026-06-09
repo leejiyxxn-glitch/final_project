@@ -55,11 +55,20 @@ def load_data():
 
 df = load_data()
 
-def extract_keywords(text_series):
+# [수정 반영] 단순 카테고리 명칭 및 뻔한 단어 제외용 불용어 사전 구축
+STOPWORDS = {
+    "셔츠", "티셔츠", "반팔티", "반팔", "셔츠", "블라우스", "카라티", "나시", "원피스", "팩", "투팩", "원단",
+    "SHIRT", "TSHIRT", "TEE", "SWEATSHIRT", "MARDI", "LEES", "인사일런스", "스파오", "넥", "라운드", "크루넥"
+}
+
+def extract_fashion_keywords(text_series):
     words = []
     for text in text_series:
         cleaned = re.sub(r'[^\w\s]', ' ', text)
-        words.extend([w.upper() for w in cleaned.split() if len(w) > 1])
+        for w in cleaned.split():
+            w_upper = w.upper()
+            if len(w_upper) > 1 and w_upper not in STOPWORDS:
+                words.append(w_upper)
     return words
 
 def get_language_type(text):
@@ -71,55 +80,119 @@ def get_language_type(text):
 
 df['lang_type'] = df['product_name'].apply(get_language_type)
 
-st.set_page_config(layout="wide", page_title="Fashion Language Dashboard")
-st.title("📌 패션 언어 대시보드 (Fashion Language Dashboard)")
-st.subheader("한국 패션 브랜드는 단어를 통해 어떻게 트렌디함을 구축하는가?")
-st.markdown("---")
+# [수정 반영] 미니멀 웹진 느낌의 전체 레이아웃 세팅 및 모노톤 테마 적용
+st.set_page_config(layout="wide", page_title="The Language of Fashion")
 
-st.sidebar.header("📊 데이터 필터")
-selected_type = st.sidebar.multiselect("브랜드 유형 선택", options=["SPA", "Designer"], default=["SPA", "Designer"])
-filtered_df = df[df['brand_type'].isin(selected_type)]
+# 블랙&화이트 감성을 강제 적용하기 위한 CSS 커스텀 인젝션
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        html, body, [data-testid="stSidebar"] {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FFFFFF;
+        }
+        h1, h2, h3, h4 {
+            color: #111111 !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.5px;
+        }
+        .stMetric label {
+            color: #666666 !important;
+            font-size: 14px !important;
+        }
+        .stMetric div[data-testid="stMetricValue"] {
+            color: #111111 !important;
+            font-size: 28px !important;
+            font-weight: 700 !important;
+        }
+    </style>
+""", unsafe_unsafe_with_premature_xml_declaration=True, unsafe_allow_html=True)
 
+st.title("THE LANGUAGE OF FASHION")
+st.caption("Analyzing How Korean Fashion Brands Construct Trendiness Through Words")
+st.markdown("<hr style='border:1px solid #111111;'/>", unsafe_allow_html=True)
+
+# [수정 반영] 브랜드별 멀티 필터링 시스템 구축
+st.sidebar.header("FILTER COLLECTION")
+selected_types = st.sidebar.multiselect("BRAND TYPE", options=["SPA", "Designer"], default=["SPA", "Designer"])
+
+# 유형에 따른 브랜드 목록 동적 추출
+available_brands = df[df['brand_type'].isin(selected_types)]['brand'].unique()
+selected_brands = st.sidebar.multiselect("SELECT BRANDS", options=list(available_brands), default=list(available_brands))
+
+# 데이터 필터링 적용
+filtered_df = df[(df['brand_type'].isin(selected_types)) & (df['brand'].isin(selected_brands))]
+
+# 상단 미니멀 스코어보드 (Metrics)
 col1, col2, col3 = st.columns(3)
-col1.metric("총 분석 상품 수", f"{len(filtered_df)} 개")
-col2.metric("평균 상품 가격", f"{int(filtered_df['price'].mean()):,} 원")
-col3.metric("포함된 브랜드 수", f"{filtered_df['brand'].nunique()} 개")
-st.markdown("---")
+col1.metric("TOTAL ITEMS", f"{len(filtered_df)} items")
+col2.metric("AVG PRICE", f"₩{int(filtered_df['price'].mean()):,}")
+col3.metric("BRANDS COUNT", f"{filtered_df['brand'].nunique()} brands")
+st.markdown("<br/>", unsafe_allow_html=True)
 
 chart_col1, chart_col2 = st.columns(2)
+
 with chart_col1:
-    st.subheader("🔤 가장 많이 사용된 패션 키워드 Top 10")
-    all_words = extract_keywords(filtered_df['product_name'])
+    st.subheader("CONCEPT KEYWORDS (TOP 10)")
+    st.caption("카테고리명(셔츠 등)을 제외한 브랜드 고유의 스타일 서술어/형용사 빈도 분석 결과")
+    
+    all_words = extract_fashion_keywords(filtered_df['product_name'])
     if all_words:
         word_counts = Counter(all_words).most_common(10)
         word_df = pd.DataFrame(word_counts, columns=['Keyword', 'Count'])
-        fig_bar = px.bar(word_df, x='Count', y='Keyword', orientation='h', color='Keyword')
-        fig_bar.update_layout(yaxis={'categoryorder':'total ascending'}, showlegend=False)
+        
+        # [수정 반영] 시크한 무채색 그라데이션 차트 적용
+        fig_bar = px.bar(word_df, x='Count', y='Keyword', orientation='h',
+                         color='Count', color_continuous_scale=['#E0E0E0', '#424242', '#111111'])
+        fig_bar.update_layout(
+            yaxis={'categoryorder':'total ascending'}, 
+            plot_bgcolor='white', paper_bgcolor='white',
+            coloraxis_showscale=False,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+        fig_bar.update_xaxes(showgrid=True, gridcolor='#F0F0F0', linecolor='#111111')
+        fig_bar.update_yaxes(linecolor='#111111')
         st.plotly_chart(fig_bar, use_container_width=True)
     else:
-        st.write("데이터가 없습니다.")
+        st.write("선택된 조건에 해당하는 키워드가 없습니다.")
 
 with chart_col2:
-    st.subheader("🌐 상품명 언어 사용 형태 분포")
+    st.subheader("LANGUAGE DISTRIBUTION")
+    st.caption("상품 네이밍 시 사용된 언어 체계의 비율")
+    
     if not filtered_df.empty:
         lang_counts = filtered_df['lang_type'].value_counts().reset_index()
         lang_counts.columns = ['Language Type', 'Count']
-        fig_pie = px.pie(lang_counts, values='Count', names='Language Type', color_discrete_sequence=px.colors.sequential.RdBu)
+        
+        # [수정 반영] 미니멀 차콜/그레이 톤 파이 차트
+        fig_pie = px.pie(lang_counts, values='Count', names='Language Type',
+                         color_discrete_sequence=['#111111', '#757575', '#E0E0E0'])
+        fig_pie.update_layout(plot_bgcolor='white', paper_bgcolor='white', margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig_pie, use_container_width=True)
     else:
         st.write("데이터가 없습니다.")
 
-st.markdown("---")
-st.subheader("💰 브랜드 유형별 가격대 및 상품명 특징 분포")
-if not filtered_df.empty:
-    fig_scatter = px.scatter(filtered_df, x='brand', y='price', color='brand_type', hover_data=['product_name'], size=[12]*len(filtered_df))
-    st.plotly_chart(fig_scatter, use_container_width=True)
-else:
-    st.write("데이터가 없습니다.")
+st.markdown("<hr style='border:0.5px solid #E0E0E0;'/>", unsafe_allow_html=True)
 
-st.markdown("---")
-st.subheader("📋 전체 수집 데이터 확인 및 키워드 검색")
-search_query = st.text_input("🔍 상품명 내 특정 키워드 검색 (예: 베이직, CLASSIC, 실루엣)")
+# 하단: 가격대 포지셔닝 차트
+st.subheader("BRAND PRICE POSITIONING")
+if not filtered_df.empty:
+    fig_scatter = px.scatter(filtered_df, x='brand', y='price', color='brand_type',
+                             hover_data=['product_name'], size=[10]*len(filtered_df),
+                             color_discrete_map={'SPA': '#757575', 'Designer': '#111111'})
+    fig_scatter.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    fig_scatter.update_xaxes(showgrid=True, gridcolor='#F0F0F0', linecolor='#111111')
+    fig_scatter.update_yaxes(showgrid=True, gridcolor='#F0F0F0', linecolor='#111111')
+    st.plotly_chart(fig_scatter, use_container_width=True)
+
+st.markdown("<hr style='border:0.5px solid #E0E0E0;'/>", unsafe_allow_html=True)
+
+# 최하단 데이터 풀 검색창
+st.subheader("ARCHIVE COLLECTION DATA")
+search_query = st.text_input("🔍 Search Concept Word (e.g. 베이직, 에센셜, CLASSIC, 실루엣)")
 
 if search_query:
     display_df = filtered_df[filtered_df['product_name'].str.contains(search_query, case=False)]
